@@ -1,19 +1,26 @@
 name: CD
 
 on:
-  push:
-    branches: [ master ]
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
 
 jobs:
   deploy:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       pages: write
       id-token: write
 
     steps:
-      - name: Checkout latest main
+      - name: Checkout master branch
         uses: actions/checkout@v4
 
-      - name: Deploy the artifacts
+      - name: Download CI artifact
+        uses: actions/download-pages-artifact@v4
+
+      - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
