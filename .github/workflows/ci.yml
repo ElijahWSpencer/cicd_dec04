@@ -2,16 +2,19 @@ name: CI
 
 on:
   push:
-    branches: [ development ]
+    branches:
+      - development
   pull_request:
-    branches: [ development ]
+    branches:
+      - development
 
 jobs:
-  run-tests:
+  build-and-test:
     runs-on: ubuntu-latest
     permissions:
-      pages: write
+      contents: read
       id-token: write
+      pages: write
 
     steps:
       - name: Checkout code
@@ -26,7 +29,7 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Run basic tests
+      - name: Run tests
         run: pytest -q
 
       - name: Run tests with coverage
@@ -37,13 +40,13 @@ jobs:
             --cov-report=xml \
             --cov-report=html
 
-      - name: Prepare the webpage
+      - name: Prepare artifact directory
         run: |
-          mkdir sites
+          mkdir -p sites
           mv htmlcov sites/
           mv coverage.xml sites/
 
-      - name: Upload the test artifacts
+      - name: Upload CI artifact for CD
         uses: actions/upload-pages-artifact@v4
         with:
           path: ./sites
